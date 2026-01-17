@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>医療・介護施設マップ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<style>
+#map { height:100vh; }
+.custom-icon { text-align:center; }
+
+/* 右上レイヤーUI */
+#control-wrapper {
+  position:absolute; top:25px; left:115px; z-index:1200;
+}
+.icon-button {
+  width:40px; height:40px; background:#007bff; color:white;
+  border-radius:50%; text-align:center; line-height:40px;
+  font-size:24px; cursor:pointer;
+}
+#controls {
+  display:none; width:200px; background:white; padding:5px;
+  border-radius:4px; box-shadow:0 2px 5px rgba(0,0,0,.3);
+  max-height:65vh; overflow:auto; font-size:12px;
+}
+#control-wrapper:hover #controls { display:block; }
+
+/* 検索UI */
+#search-wrapper {
+  position:fixed; top:520px; left:10px; z-index:1300;
+}
+#search-btn {
+  position: fixed; left: 10px; top: 150px;
+  width:40px; height:40px;
+  background:#28a745; color:#fff;
+  border-radius:50%;
+  text-align:center; line-height:40px;
+  font-size:20px; cursor:pointer;
+  z-index:1000;
+}
+#search-panel {
+  display:none; width:230px; background:white;
+  padding:8px; margin-top:5px; border-radius:6px;
+  box-shadow:0 2px 5px rgba(0,0,0,.3); font-size:12px;
+}
+#search-results {
+  max-height:150px; overflow:auto; margin-top:5px;
+}
+.search-item { cursor:pointer; }
+.search-item:hover { background:#eee; }
+
+#search-wrapper:hover #search-panel {
+  display: block;
+}
+
+/* インフォメーションUI */
+#info-wrapper {
+  position: fixed; bottom: 20px; top:20px; left: 170px; z-index: 1400;
+
+}
+#info-btn {
+  width: 40px; height: 40px; background: #ff69b4; color: black;
+  border-radius: 50%; text-align: center; line-height: 40px;
+  font-size: 24px; font-weight: bold; cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+#info-panel {
+  display: none; width: 300px; background: pink; color: black;
+  padding: 15px; margin-bottom: 10px; border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3); font-size: 13px;
+  line-height: 1.5;
+}
+
+/* 点滅 */
+.blink { animation:blink 1s 3; }
+@keyframes blink {
+  0%{transform:scale(1);}
+  50%{transform:scale(1.8);}
+  100%{transform:scale(1);}
+}
+</style>
+</head>
+
+<body>
+
+<div id="control-wrapper">
+  <div class="icon-button">🛠️</div>
+  <div id="controls">
+    <button id="selectAllBtn">すべて選択</button>
+    <button id="deselectAllBtn">すべて解除</button><br>
+
+      <label><input type="checkbox" class="layer-toggle" value="町丁目境界01"> 二次医療圏(海部)</label><br>
+      <label><input type="checkbox" class="layer-toggle" value="町丁目境界02"> 〃  (尾張東部)</label><br>
+      <label><input type="checkbox" class="layer-toggle" value="町丁目境界03"> 〃  (尾張西部)</label><br>
+      <label><input type="checkbox" class="layer-toggle" value="町丁目境界04"> 〃  (尾張北部)</label><br>
+      <label><input type="checkbox" class="layer-toggle" value="町丁目境界05"> 〃  (知多半島)</label><br>
+      <label><input type="checkbox" class="layer-toggle" value="町丁目境界06"> 〃  (西三河北部)</label><br>
+      <label><input type="checkbox" class="layer-toggle" value="町丁目境界07"> 〃  (西三河南部西)</label><br>
+      <label><input type="checkbox" class="layer-toggle" value="町丁目境界08"> 〃  (西三河南部東)</label><br>
+      <label><input type="checkbox" class="layer-toggle" value="町丁目境界09"> 〃  (東三河北部)</label><br>
+      <label><input type="checkbox" class="layer-toggle" value="町丁目境界10"> 〃  (東三河南部)</label><br>
+      <label><input type="checkbox" class="layer-toggle" value="町丁目境界11"> 〃  (名古屋・尾張中部)</label><br>
+<label><input type="checkbox" class="layer-toggle" value="病院"> 病院</label><br>
+<label><input type="checkbox" class="layer-toggle" value="診療所"> 診療所</label><br>
+<label><input type="checkbox" class="layer-toggle" value="歯科"> 歯科</label><br>
+<label><input type="checkbox" class="layer-toggle" value="助産院"> 助産院</label><br>
+<label><input type="checkbox" class="layer-toggle" value="薬局"> 薬局</label><br>
+
+    </div>
+  </div>
+
+  <div id="search-wrapper">
+    <div id="search-btn" onclick="toggleSearch()">🔍</div>
+    <div id="search-panel">
+      <input type="text" id="search-input" placeholder="検索入力する(and検索)..." style="width:100%; box-sizing:border-box; padding:5px;">
+      <div id="search-results"></div>
+    </div>
+  </div>
+
+  <div id="info-wrapper" onmouseenter="showInfo()" onmouseleave="hideInfo()">
+    <div id="info-panel">
+      医療・介護（厚生労働省）の検索<br>
+      【出典、機能、利用規約】は以下<br>
+      のサイトをご確認ください。<br>
+      <a href="https://sites.google.com/view/indexm" target="_blank">https://sites.google.com/view/indexm</a><br>
+      作成者:Mana48FanClub
+    </div>
+    <div id="info-btn" onclick="toggleInfoClick()">i</div>
+  </div>
+
+  <div id="map"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    var baseLayers = {
+      "標準地図": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 20,
+        attribution: '© OpenStreetMap contributors'
+      }),
+      "航空写真": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles © Esri'
+      }),
+      "トポグラフィック地図": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles © Esri'
+      }),
+      "グレースケール地図": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles © Esri'
+      }),
+      "ストリートマップ": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles © Esri'
+      })
+    };
+    
+    var map = L.map('map', {
+      center: [35.18041273208532, 136.90612213810965],
+      zoom: 18,
+      zoomControl: false, // これで消えます
+      layers: [baseLayers["標準地図"]],
+      attributionControl: true
+    });
+
+    L.control.layers(baseLayers, null, { position: 'topleft', collapsed: true }).addTo(map);
+    var layerGroups = {};
+    var searchLayer = L.layerGroup().addTo(map);
+
+    function loadChomeLayer(index) {
+      const filename = `geo_0_町丁目境界${String(index).padStart(2, '0')}.geojson`;
+      const layerName = `町丁目境界${String(index).padStart(2, '0')}`;
+
+      fetch(filename)
+        .then(res => res.json())
+        .then(data => {
+          const chomeLayer = L.geoJSON(data, {
+            style: {
+              color: "red",
+              weight: 1,
+              fillOpacity: 0.03
+            },
+            onEachFeature: function(feature, layer) {
+              const name = feature.properties["町丁目名"] || "不明";
+              const pop = feature.properties["JINKO"] || "不明";
+              layer.bindTooltip(`<strong>${name}</strong><br>人口: ${pop}`, { direction: "center", permanent: false });
+            }
+          });
+          layerGroups[layerName] = chomeLayer;
+        });
+    }
+
+    for (let i = 1; i <= 11; i++) {
+      loadChomeLayer(i);
+    }
+
+        fetch("geo_23_1.geojson")
+          .then(res => res.json())
+          .then(data => {
+            var layer = L.geoJSON(data, {
+              pointToLayer: function(feature, latlng) {
+                return L.marker(latlng, {
+                  icon: L.divIcon({
+                    className: 'custom-icon',
+                    html: `<div style="color:red; font-size:30px;">★</div>`,
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16]
+                  })
+                })
+                .bindTooltip(
+                  `<strong>${feature.properties["内容"] || "-"}</strong>`,
+                  {
+                    direction: "top",
+                    sticky: true
+                  }
+                )
+                .bindPopup(
+                  `<strong>${feature.properties["内容"] || "-"}</strong><br>
+                   ${feature.properties["url2"]
+                     ? `<a href="${feature.properties["url2"]}" target="_blank" rel="noopener noreferrer">ホームページ</a>`
+                     : "-"}<br>
+                   ${feature.properties["url"]
+                     ? `<a href="${feature.properties["url"]}" target="_blank" rel="noopener noreferrer">医療・介護ネットのページ</a>`
+                     : "-"}`
+                );
+              }
+            });
+            layerGroups["病院"] = layer;
+          });
+    
+        fetch("geo_23_2.geojson")
+          .then(res => res.json())
+          .then(data => {
+            var layer = L.geoJSON(data, {
+              pointToLayer: function(feature, latlng) {
+                return L.marker(latlng, {
+                  icon: L.divIcon({
+                    className: 'custom-icon',
+                    html: `<div style="color:blue; font-size:40px;">♥</div>`,
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16]
+                  })
+                })
+                .bindTooltip(
+                  `<strong>${feature.properties["内容"] || "-"}</strong>`,
+                  {
+                    direction: "top",
+                    sticky: true
+                  }
+                )
+                .bindPopup(
+                  `<strong>${feature.properties["内容"] || "-"}</strong><br>
+                   ${feature.properties["url2"]
+                     ? `<a href="${feature.properties["url2"]}" target="_blank" rel="noopener noreferrer">ホームページ</a>`
+                     : "-"}<br>
+                   ${feature.properties["url"]
+                     ? `<a href="${feature.properties["url"]}" target="_blank" rel="noopener noreferrer">医療・介護ネットのページ</a>`
+                     : "-"}`
+                );
+              }
+            });
+            layerGroups["診療所"] = layer;
+          });
+    
+        fetch("geo_23_3.geojson")
+          .then(res => res.json())
+          .then(data => {
+            var layer = L.geoJSON(data, {
+              pointToLayer: function(feature, latlng) {
+                return L.marker(latlng, {
+                  icon: L.divIcon({
+                    className: 'custom-icon',
+                    html: `<div style="color:orange; font-size:40px;">♣</div>`,
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16]
+                  })
+                })
+                .bindTooltip(
+                  `<strong>${feature.properties["内容"] || "-"}</strong>`,
+                  {
+                    direction: "top",
+                    sticky: true
+                  }
+                )
+                .bindPopup(
+                  `<strong>${feature.properties["内容"] || "-"}</strong><br>
+                   ${feature.properties["url2"]
+                     ? `<a href="${feature.properties["url2"]}" target="_blank" rel="noopener noreferrer">ホームページ</a>`
+                     : "-"}<br>
+                   ${feature.properties["url"]
+                     ? `<a href="${feature.properties["url"]}" target="_blank" rel="noopener noreferrer">医療・介護ネットのページ</a>`
+                     : "-"}`
+                );
+              }
+            });
+            layerGroups["歯科"] = layer;
+          });
+    
+        fetch("geo_23_4.geojson")
+          .then(res => res.json())
+          .then(data => {
+            var layer = L.geoJSON(data, {
+              pointToLayer: function(feature, latlng) {
+                return L.marker(latlng, {
+                  icon: L.divIcon({
+                    className: 'custom-icon',
+                    html: `<div style="color:red; font-size:40px;">■</div>`,
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16]
+                  })
+                })
+                .bindTooltip(
+                  `<strong>${feature.properties["内容"] || "-"}</strong>`,
+                  {
+                    direction: "top",
+                    sticky: true
+                  }
+                )
+                .bindPopup(
+                  `<strong>${feature.properties["内容"] || "-"}</strong><br>
+                   ${feature.properties["url2"]
+                     ? `<a href="${feature.properties["url2"]}" target="_blank" rel="noopener noreferrer">ホームページ</a>`
+                     : "-"}<br>
+                   ${feature.properties["url"]
+                     ? `<a href="${feature.properties["url"]}" target="_blank" rel="noopener noreferrer">医療・介護ネットのページ</a>`
+                     : "-"}`
+                );
+              }
+            });
+            layerGroups["助産院"] = layer;
+          });
+    
+        fetch("geo_23_5.geojson")
+          .then(res => res.json())
+          .then(data => {
+            var layer = L.geoJSON(data, {
+              pointToLayer: function(feature, latlng) {
+                return L.marker(latlng, {
+                  icon: L.divIcon({
+                    className: 'custom-icon',
+                    html: `<div style="color:green; font-size:40px;">♠</div>`,
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16]
+                  })
+                })
+                .bindTooltip(
+                  `<strong>${feature.properties["内容"] || "-"}</strong>`,
+                  {
+                    direction: "top",
+                    sticky: true
+                  }
+                )
+                .bindPopup(
+                  `<strong>${feature.properties["内容"] || "-"}</strong><br>
+                   ${feature.properties["url2"]
+                     ? `<a href="${feature.properties["url2"]}" target="_blank" rel="noopener noreferrer">ホームページ</a>`
+                     : "-"}<br>
+                   ${feature.properties["url"]
+                     ? `<a href="${feature.properties["url"]}" target="_blank" rel="noopener noreferrer">医療・介護ネットのページ</a>`
+                     : "-"}`
+                );
+              }
+            });
+            layerGroups["薬局"] = layer;
+          });
+    
+    document.querySelectorAll('.layer-toggle').forEach(function(cb) {
+      cb.addEventListener('change', function() {
+        const label = this.value;
+        if (layerGroups[label]) {
+          if (this.checked) {
+            layerGroups[label].addTo(map);
+          } else {
+            map.removeLayer(layerGroups[label]);
+          }
+        }
+      });
+    });
+
+    document.getElementById('selectAllBtn').addEventListener('click', function() {
+      document.querySelectorAll('.layer-toggle').forEach(cb => {
+        cb.checked = true;
+        const label = cb.value;
+        if (layerGroups[label]) layerGroups[label].addTo(map);
+      });
+    });
+
+    document.getElementById('deselectAllBtn').addEventListener('click', function() {
+      document.querySelectorAll('.layer-toggle').forEach(cb => {
+        cb.checked = false;
+        const label = cb.value;
+        if (layerGroups[label]) map.removeLayer(layerGroups[label]);
+      });
+    });
+
+    // --- インフォメーションボタンの制御ロジック ---
+    const infoPanel = document.getElementById('info-panel');
+    let isInfoLocked = false; // クリックで固定されているかどうかのフラグ
+
+    function showInfo() {
+      infoPanel.style.display = 'block';
+    }
+
+    function hideInfo() {
+      if (!isInfoLocked) {
+        infoPanel.style.display = 'none';
+      }
+    }
+
+    function toggleInfoClick() {
+      if (infoPanel.style.display === 'block' && isInfoLocked) {
+        // すでに表示されていて、かつロック中の場合は閉じる
+        infoPanel.style.display = 'none';
+        isInfoLocked = false;
+      } else {
+        // 表示してロックする
+        infoPanel.style.display = 'block';
+        isInfoLocked = true;
+      }
+    }
+
+    // 検索パネルの開閉
+    function toggleSearch() {
+      const panel = document.getElementById('search-panel');
+      panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
+    }
+
+    // 検索処理
+    document.getElementById('search-input').addEventListener('input', function(e) {
+        const input = e.target.value.trim().toLowerCase();
+        const resultsDiv = document.getElementById('search-results');
+        resultsDiv.innerHTML = '';
+        searchLayer.clearLayers();
+
+        if (!input) return;
+
+        const keywords = input.split(/\s+/);
+
+        for (let label in layerGroups) {
+            layerGroups[label].eachLayer(function(layer) {
+                if (!layer.feature || !layer.feature.properties) return;
+
+                const name = (layer.feature.properties["内容"] || "").toLowerCase();
+                if (!name) return;
+
+                const match = keywords.every(k => name.includes(k));
+                if (match) {
+                    const div = document.createElement('div');
+                    div.className = 'search-item';
+                    div.style.padding = '5px';
+                    div.innerText = layer.feature.properties["内容"];
+
+                    div.onclick = function() {
+                        searchLayer.clearLayers();
+                        const latlng = layer.getLatLng();
+                        const iconHtml = layer.options.icon.options.html;
+
+                        L.marker(latlng, {
+                            icon: L.divIcon({
+                                className: 'custom-icon blink',
+                                html: iconHtml,
+                                iconSize: [32, 32],
+                                iconAnchor: [16, 16]
+                            })
+                        })
+                        .bindPopup(layer.getPopup().getContent())
+                        .addTo(searchLayer)
+                        .openPopup();
+
+                        map.setView(latlng, 17);
+                    };
+
+                    resultsDiv.appendChild(div);
+                }
+            });
+        }
+    });
+  </script>
+</body>
+</html>
