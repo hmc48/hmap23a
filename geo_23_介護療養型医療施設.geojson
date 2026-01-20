@@ -1,0 +1,11 @@
+{
+"type": "FeatureCollection",
+"name": "geo_23_介護療養型医療施設",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "内容": "二川病院【介護療養型医療施設】豊橋市大岩町字北元屋敷３６番地の３", "url": "https://www.kaigokensaku.mhlw.go.jp/23/index.php?action_kouhyou_detail_004_kani=true&JigyosyoCd=2312001072-00&ServiceCd=530&Type=search", "url2": "http://www.futagawa-hp.or.jp" }, "geometry": { "type": "Point", "coordinates": [ 137.440649400000012, 34.7267672 ] } },
+{ "type": "Feature", "properties": { "内容": "水野病院【介護療養型医療施設】愛知県瀬戸市小田妻町1丁目１９０番地の2", "url": "https://www.kaigokensaku.mhlw.go.jp/23/index.php?action_kouhyou_detail_004_kani=true&JigyosyoCd=2312300938-00&ServiceCd=530&Type=search", "url2": "http://www.kouseikai2231.jp" }, "geometry": { "type": "Point", "coordinates": [ 137.0753913, 35.241625 ] } },
+{ "type": "Feature", "properties": { "内容": "あべクリニック【介護療養型医療施設】半田市南大矢知町2-41-1", "url": "https://www.kaigokensaku.mhlw.go.jp/23/index.php?action_kouhyou_detail_004_kani=true&JigyosyoCd=2312401298-00&ServiceCd=530&Type=search", "url2": "http://www.medi-life.jp/" }, "geometry": { "type": "Point", "coordinates": [ 136.9423787, 34.9249624 ] } },
+{ "type": "Feature", "properties": { "内容": "宮本病院【介護療養型医療施設】愛知県新城市海老字野辺２３", "url": "https://www.kaigokensaku.mhlw.go.jp/23/index.php?action_kouhyou_detail_004_kani=true&JigyosyoCd=2314000502-00&ServiceCd=530&Type=search", "url2": "http://" }, "geometry": { "type": "Point", "coordinates": [ 137.5567997, 35.0248359 ] } }
+]
+}

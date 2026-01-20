@@ -1,0 +1,11 @@
+{
+"type": "FeatureCollection",
+"name": "geo_23_指定療養通所介護",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "内容": "療養通所介護あゝす【指定療養通所介護】名古屋市瑞穂区竹田町3丁目11番地サンライズ江副1階", "url": "https://www.kaigokensaku.mhlw.go.jp/23/index.php?action_kouhyou_detail_004_kani=true&JigyosyoCd=2390800395-00&ServiceCd=&Type=search", "url2": "https://www.naass.or.jp/" }, "geometry": { "type": "Point", "coordinates": [ 136.923761047255994, 35.139288366098199 ] } },
+{ "type": "Feature", "properties": { "内容": "メディカルサロンはーとらいふ【指定療養通所介護】愛知県豊橋市牧野町字北原7番地１", "url": "https://www.kaigokensaku.mhlw.go.jp/23/index.php?action_kouhyou_detail_004_kani=true&JigyosyoCd=2392000614-00&ServiceCd=&Type=search", "url2": null }, "geometry": { "type": "Point", "coordinates": [ 137.4058197, 34.733173 ] } },
+{ "type": "Feature", "properties": { "内容": "ナーシングデイ柊【指定療養通所介護】愛知県上松山町1-69", "url": "https://www.kaigokensaku.mhlw.go.jp/23/index.php?action_kouhyou_detail_004_kani=true&JigyosyoCd=2392300261-00&ServiceCd=&Type=search", "url2": "https://hiiragist.com/" }, "geometry": { "type": "Point", "coordinates": [ 137.08249570000001, 35.2331988 ] } },
+{ "type": "Feature", "properties": { "内容": "レスパイトステーション安あん【指定療養通所介護】愛知県安城市赤松町的場145番地", "url": "https://www.kaigokensaku.mhlw.go.jp/23/index.php?action_kouhyou_detail_004_kani=true&JigyosyoCd=2373101837-00&ServiceCd=&Type=search", "url2": "http://lib-s.com/" }, "geometry": { "type": "Point", "coordinates": [ 137.061809399999987, 34.9343934 ] } }
+]
+}

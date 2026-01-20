@@ -1,0 +1,11 @@
+{
+"type": "FeatureCollection",
+"name": "geo_23_特定施設入居者生活介護（有料老人ホーム（サービス付き高齢者向け住宅））",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "内容": "あいりナーシングホーム【特定施設入居者生活介護（有料老人ホーム（サービス付き高齢者向け住宅））】愛知県名古屋市西区玉池町２１８番", "url": "https://www.kaigokensaku.mhlw.go.jp/23/index.php?action_kouhyou_detail_004_kani=true&JigyosyoCd=2370403764-00&ServiceCd=&Type=search", "url2": "https://www.at-inc.co.jp" }, "geometry": { "type": "Point", "coordinates": [ 136.8874874, 35.2287331 ] } },
+{ "type": "Feature", "properties": { "内容": "サービス付き高齢者向け住宅医療法人生寿会エイム新栄【特定施設入居者生活介護（有料老人ホーム（サービス付き高齢者向け住宅））】愛知県名古屋市中区新栄三丁目7番13号", "url": "https://www.kaigokensaku.mhlw.go.jp/23/index.php?action_kouhyou_detail_004_kani=true&JigyosyoCd=2370602548-00&ServiceCd=&Type=search", "url2": "https://www.seijukai.or.jp/" }, "geometry": { "type": "Point", "coordinates": [ 136.9268609, 35.1677894 ] } },
+{ "type": "Feature", "properties": { "内容": "シルバーマンション篠原【特定施設入居者生活介護（有料老人ホーム（サービス付き高齢者向け住宅））】愛知県名古屋市中川区上脇町2丁目63番地", "url": "https://www.kaigokensaku.mhlw.go.jp/23/index.php?action_kouhyou_detail_004_kani=true&JigyosyoCd=2371005030-00&ServiceCd=&Type=search", "url2": "http:/oyakhoko.net" }, "geometry": { "type": "Point", "coordinates": [ 136.873285, 35.1357208 ] } },
+{ "type": "Feature", "properties": { "内容": "介護付有料老人ホーム吉祥舘【特定施設入居者生活介護（有料老人ホーム（サービス付き高齢者向け住宅））】船頭場一丁目314番地介護付有料老人ホーム吉祥舘", "url": "https://www.kaigokensaku.mhlw.go.jp/23/index.php?action_kouhyou_detail_004_kani=true&JigyosyoCd=2371102852-00&ServiceCd=&Type=search", "url2": "http://okamoto-iin.com" }, "geometry": { "type": "Point", "coordinates": [ 136.8288404, 35.1183096 ] } }
+]
+}
